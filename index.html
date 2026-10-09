@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14231a">
+<title>SPORTS ZONE | Sports Equipment</title>
+<link rel="manifest" href="manifest.json">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f4;color:#18231b}
+header{background:#14231a;color:white;padding:18px 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo{font-size:25px;font-weight:900}.logo span,.hero span{color:#bafa48}
+button{border:0;border-radius:7px;padding:12px 15px;font-weight:bold;cursor:pointer}
+header button{background:#bafa48;color:#14231a}
+.hero{background:#14291d;color:white;padding:65px 7%}
+.hero h1{font-size:clamp(38px,7vw,68px);margin:14px 0}
+.hero p{line-height:1.8;color:#d5dfd7}
+section{padding:32px 5%}
+h2{font-size:28px}
+.hidden{display:none!important}
+.filters{display:flex;gap:10px;flex-wrap:wrap}
+input,textarea,select{padding:12px;border:1px solid #ccd5cd;border-radius:6px;font:inherit;max-width:100%;width:100%}
+#search{flex:1;min-width:190px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:20px}
+.card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 18px #0000000b}
+.product-img{height:155px;background:#e6ece6;display:grid;place-items:center;font-size:68px}
+.info{padding:17px}.info p{color:#657168;line-height:1.5;font-size:14px}
+.price{font-size:22px;font-weight:bold;margin:14px 0}
+.buy{width:100%;background:#bafa48;color:#14231a}
+.secondary{background:#e8eee9;color:#18231b}
+.panel{background:white;border-radius:10px;padding:20px;margin:16px 0;overflow-wrap:anywhere}
+.cart-row,.order{border-bottom:1px solid #ddd;padding:14px 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.actions button{flex:1}
+label{display:block;margin:12px 0 6px}
+footer{background:#14231a;color:white;padding:30px;text-align:center}
+small{color:#718075}
+#adminGate{max-width:430px;margin:35px auto}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">SPORTS <span style="color:#bafa48">ZONE.</span></div>
+ <div class="actions">
+  <button onclick="showSection('shop')">Shop</button>
+  <button onclick="showSection('cart')">🛒 Cart (<span id="count">0</span>)</button>
+  <button onclick="downloadApp()">📲 Download App</button>
+ </div>
+</header>
+
+<div class="hero">
+ <small style="color:#bafa48">YOUR GAME. YOUR GEAR.</small>
+ <h1>PLAY HARD.<br><span>WIN BIG.</span></h1>
+ <p>Discover quality sports equipment for athletes, teams and fitness lovers.<br>Gear up for your next big game with SPORTS ZONE.</p>
+ <button class="buy" style="width:auto" onclick="showSection('shop')">EXPLORE PRODUCTS →</button>
+</div>
+
+<section id="shop">
+ <h2>Our Sports Collection</h2>
+ <div class="filters">
+  <input id="search" placeholder="Search products..." oninput="renderProducts()">
+  <select id="category" onchange="renderProducts()" style="width:auto">
+   <option>All</option><option>Cricket</option><option>Football</option><option>Gym</option><option>Accessories</option>
+  </select>
+ </div>
+ <br><div class="grid" id="products"></div>
+</section>
+
+<section id="cart" class="hidden">
+ <h2>Your Shopping Cart</h2>
+ <div class="panel" id="cartItems"></div>
+ <h3 id="total">Total: Rs. 0</h3>
+ <div class="panel">
+  <h3>Delivery & Checkout</h3>
+  <form id="checkout">
+   <label>Full Name</label><input name="customer" required placeholder="Enter your name">
+   <label>Phone Number</label><input name="phone" type="tel" required placeholder="03XXXXXXXXX">
+   <label>Delivery Address</label><textarea name="address" required placeholder="House, street, city"></textarea>
+   <label>Payment Method</label>
+   <select name="payment"><option>Cash on Delivery</option></select>
+   <br><br><button class="buy" type="submit">CONFIRM ORDER</button>
+  </form>
+ </div>
+</section>
+
+<section id="admin" class="hidden">
+ <div id="adminGate" class="panel">
+  <h2>Admin Login</h2>
+  <p>Authorized staff only</p>
+  <form id="loginForm">
+   <label>Password</label><input id="password" type="password" required>
+   <br><br><button class="buy">LOGIN</button>
+  </form>
+ </div>
+ <div id="adminContent" class="hidden">
+  <h2>Admin Dashboard</h2>
+  <div class="panel"><h3>Customer Orders: <span id="orderCount">0</span></h3><div id="orders"></div></div>
+  <div class="panel">
+   <h3>Add New Product</h3>
+   <form id="addProduct">
+    <label>Product Name</label><input name="name" required>
+    <label>Price in PKR</label><input name="price" type="number" min="1" required>
+    <label>Category</label><select name="category"><option>Cricket</option><option>Football</option><option>Gym</option><option>Accessories</option></select>
+    <label>Product Emoji</label><input name="emoji" placeholder="🏏 or ⚽">
+    <br><br><button class="buy">ADD PRODUCT</button>
+   </form>
+  </div>
+  <button class="secondary" onclick="logout()">LOG OUT</button>
+ </div>
+</section>
+
+<footer>
+ <h3>SPORTS ZONE.</h3>
+ <p>Gear up. Get out there. Play your best.</p>
+ <small>© 2026 SPORTS ZONE | Sports Equipment Store</small>
+</footer>
+
+<script>
+const defaults=[
+{id:1,name:"Pro Cricket Bat",price:4500,category:"Cricket",emoji:"🏏"},
+{id:2,name:"Match Football",price:2800,category:"Football",emoji:"⚽"},
+{id:3,name:"Basketball",price:3200,category:"Accessories",emoji:"🏀"},
+{id:4,name:"Gym Dumbbells",price:5000,category:"Gym",emoji:"🏋️"},
+{id:5,name:"Cricket Ball Set",price:1200,category:"Cricket",emoji:"🔴"},
+{id:6,name:"Training Gloves",price:1800,category:"Accessories",emoji:"🥊"},
+{id:7,name:"Football Boots",price:6500,category:"Football",emoji:"👟"},
+{id:8,name:"Resistance Bands",price:900,category:"Gym",emoji:"💪"}
+];
+
+function load(k,d){
+ try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}
+}
+let products=load("sz_products",defaults);
+let cart=load("sz_cart",[]);
+let orders=load("sz_orders",[]);
+let adminLoggedIn=false;
+
+function save(){
+ localStorage.setItem("sz_products",JSON.stringify(products));
+ localStorage.setItem("sz_cart",JSON.stringify(cart));
+ localStorage.setItem("sz_orders",JSON.stringify(orders));
+}
+function money(n){return "Rs. "+Number(n).toLocaleString("en-PK")}
+
+function renderProducts(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const cat=document.getElementById("category").value;
+ document.getElementById("products").innerHTML=products
+ .filter(p=>(cat==="All"||p.category===cat)&&p.name.toLowerCase().includes(q))
+ .map(p=>`<div class="card">
+ <div class="product-img">${p.emoji||"🏅"}</div>
+ <div class="info"><small>${p.category}</small><h3>${p.name}</h3>
+ <p>Quality sports equipment for your training and matches.</p>
+ <div class="price">${money(p.price)}</div>
+ <button class="buy" onclick="buyNow(${p.id})">BUY NOW</button>
+ <button class="secondary" style="width:100%;margin-top:8px" onclick="addToCart(${p.id})">ADD TO CART</button>
+ </div></div>`).join("")||"<p>No products found.</p>";
+}
+function addToCart(id){
+ let x=cart.find(p=>p.id===id);
+ if(x)x.qty++;else cart.push({id,qty:1});
+ save();renderCart();alert("Product added to cart!");
+}
+function buyNow(id){
+ cart=[{id,qty:1}];save();renderCart();showSection("cart");
+}
+function changeQty(id,n){
+ let x=cart.find(p=>p.id===id);
+ if(x)x.qty+=n;
+ cart=cart.filter(p=>p.qty>0);save();renderCart();
+}
+function removeItem(id){
+ cart=cart.filter(p=>p.id!==id);save();renderCart();
+}
+function renderCart(){
+ document.getElementById("count").textContent=cart.reduce((s,x)=>s+x.qty,0);
+ let total=0;
+ document.getElementById("cartItems").innerHTML=cart.map(x=>{
+  let p=products.find(y=>y.id===x.id);if(!p)return "";
+  total+=p.price*x.qty;
+  return `<div class="cart-row"><b>${p.emoji||""} ${p.name}</b><br>${money(p.price)} each
+  <div class="actions">
+  <button class="secondary" onclick="changeQty(${x.id},-1)">−</button>
+  <button class="secondary" disabled>${x.qty}</button>
+  <button class="secondary" onclick="changeQty(${x.id},1)">+</button>
+  <button class="secondary" onclick="removeItem(${x.id})">Remove</button>
+  </div></div>`;
+ }).join("")||"Your cart is empty.";
+ document.getElementById("total").textContent="Total: "+money(total);
+}
+function showSection(id){
+ ["shop","cart","admin"].forEach(s=>document.getElementById(s).classList.toggle("hidden",s!==id));
+ if(id==="cart")renderCart();
+ if(id==="admin")renderOrders();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.getElementById("checkout").addEventListener("submit",function(e){
+ e.preventDefault();
+ if(!cart.length){alert("Your cart is empty.");return}
+ const f=new FormData(this);
+ const items=cart.map(x=>{
+  const p=products.find(y=>y.id===x.id);
+  return p?{name:p.name,price:p.price,qty:x.qty}:null;
+ }).filter(Boolean);
+ if(!items.length){alert("Products unavailable.");return}
+ const total=items.reduce((s,x)=>s+x.price*x.qty,0);
+ orders.unshift({
+ id:"SZ"+Date.now().toString().slice(-8),
+ customer:f.get("customer"),phone:f.get("phone"),
+ address:f.get("address"),payment:f.get("payment"),
+ items,total,status:"Pending",date:new Date().toLocaleString()
+ });
+ cart=[];save();renderCart();this.reset();
+ alert("Demo order placed successfully!");
+ showSection("shop");
+});
+document.getElementById("loginForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ // DEMO ONLY: not secure for a live store
+ if(document.getElementById("password").value!=="admin123"){
+  alert("Incorrect password.");return;
+ }
+ adminLoggedIn=true;
+ document.getElementById("adminGate").classList.add("hidden");
+ document.getElementById("adminContent").classList.remove("hidden");
+ renderOrders();
+});
+function logout(){
+ adminLoggedIn=false;
+ document.getElementById("adminContent").classList.add("hidden");
+ document.getElementById("adminGate").classList.remove("hidden");
+ document.getElementById("password").value="";
+ showSection("shop");
+}
+function renderOrders(){
+ if(!adminLoggedIn)return;
+ document.getElementById("orderCount").textContent=orders.length;
+ document.getElementById("orders").innerHTML=orders.map((o,i)=>`
+ <div class="order"><h3>Order #${o.id}</h3>
+ <p><b>${o.customer}</b> | ${o.phone}</p>
+ <p>Address: ${o.address}</p>
+ <p>${o.items.map(x=>x.name+" × "+x.qty).join(", ")}</p>
+ <p>Total: <b>${money(o.total)}</b> | ${o.payment}</p>
+ <p>Date: ${o.date}</p><p>Status: <b>${o.status}</b></p>
+ <label>Update status</label>
+ <select id="status${i}">${["Pending","Confirmed","Shipped","Delivered","Cancelled"].map(s=>`<option ${o.status===s?"selected":""}>${s}</option>`).join("")}</select>
+ <br><br><button class="buy" onclick="updateStatus(${i})">UPDATE ORDER</button>
+ </div>`).join("")||"No orders received yet.";
+}
+function updateStatus(i){
+ orders[i].status=document.getElementById("status"+i).value;
+ save();renderOrders();
+}
+document.getElementById("addProduct").addEventListener("submit",function(e){
+ e.preventDefault();
+ const f=new FormData(this);
+ products.push({id:Date.now(),name:f.get("name"),price:Number(f.get("price")),category:f.get("category"),emoji:f.get("emoji")||"🏅"});
+ save();renderProducts();this.reset();alert("Product added.");
+});
+
+// Download/install support where browser permits
+let installPrompt=null;
+window.addEventListener("beforeinstallprompt",e=>{
+ e.preventDefault();installPrompt=e;
+});
+async function downloadApp(){
+ if(installPrompt){
+  installPrompt.prompt();
+  await installPrompt.userChoice;
+  installPrompt=null;
+ }else{
+  alert("Install option may be available in your browser menu. A downloadable Android APK needs a separately built Android app.");
+ }
+}
+renderProducts();renderCart();
+
+// Admin route: type index.html#admin in the address bar
+if(location.hash==="#admin")showSection("admin");
+</script>
+</body>
+</html>
+
